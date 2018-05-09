@@ -1,5 +1,5 @@
-from mnist import MNIST
 import numpy
+import pandas
 
 def ReLU(vector):
   result = numpy.copy(vector)
@@ -16,17 +16,24 @@ def ReLUDerivative(vector):
       result[i] = 0
   return result
 
-mndata = MNIST('Data')
-
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
-LAYER_ARRAY = [500, 150, 10]
+LAYER_ARRAY = [500, 150, 2]
 TARGET_ACCURACY = 0.95
 MAXIMUM_EPOCHS = 5
 
-#load images
-trainImages, trainLabels = mndata.load_training()
-testImagesInput, testLabels = mndata.load_testing()
+#load data
+trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
+testDataRaw = pandas.read_csv("predict.txt", delimiter='|')
+
+trainDataConverted = pandas.get_dummies(trainDataRaw)
+
+print(trainDataConverted.head())
+
+trainIterator = csv.reader(trainData)
+for row in trainIterator:
+  print(', '.join(row))
+  print('\n')
 
 #convert images to arrays in order to simplify computations
 trainImages = numpy.asmatrix(trainImages) / 255
