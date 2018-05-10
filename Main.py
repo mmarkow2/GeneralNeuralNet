@@ -24,20 +24,13 @@ MAXIMUM_EPOCHS = 5
 
 #load data
 trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
-testDataRaw = pandas.read_csv("predict.txt", delimiter='|')
 
-trainDataConverted = pandas.get_dummies(trainDataRaw)
+#dummy out categorical variables into binary and convert to matrix
+trainDataConverted = numpy.asmatrix(pandas.get_dummies(trainDataRaw).as_matrix()).astype(int)
 
-print(trainDataConverted.head())
-
-trainIterator = csv.reader(trainData)
-for row in trainIterator:
-  print(', '.join(row))
-  print('\n')
-
-#convert images to arrays in order to simplify computations
-trainImages = numpy.asmatrix(trainImages) / 255
-testImages = numpy.asmatrix(testImagesInput) / 255
+#convert train data to matrix
+trainLabels = trainDataConverted[:, 1]
+trainData = trainDataConverted[:,2:]
 
 #Advanced classifier
 
@@ -48,7 +41,7 @@ layerweights = [0] * len(LAYER_ARRAY)
 layerbiases = [0] * len(LAYER_ARRAY)
 for num in LAYER_ARRAY:
   if layerNum == 0:
-    layerweights[layerNum] = 0.01 * numpy.random.randn(num, trainImages.shape[1])
+    layerweights[layerNum] = 0.01 * numpy.random.randn(num, trainData.shape[1])
   else:
     layerweights[layerNum] = 0.01 * numpy.random.randn(num, layerweights[layerNum - 1].shape[0])
   layerbiases[layerNum] = numpy.zeros((num, 1))
@@ -68,7 +61,7 @@ shouldTrain = True
 numEpochs = 0
 
 while shouldTrain:
-  order = numpy.random.choice(trainImages.shape[0], size=trainImages.shape[0], replace=False)
+  order = numpy.random.choice(trainData.shape[0], size=trainData.shape[0], replace=False)
   for i in range(0, len(order) - BATCH_SIZE, BATCH_SIZE):
     #gradient sums (used for batches)
     biasGradientSUM = [0] * len(LAYER_ARRAY)
@@ -76,12 +69,12 @@ while shouldTrain:
 
     for j in range(i, i + BATCH_SIZE):
       #progress bar
-      percentComplete = int(j / trainImages.shape[0] * 100)
+      percentComplete = int(j / trainData.shape[0] * 100)
 
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
-      #convert the current image to a column vector
-      curImage = numpy.transpose(trainImages[order[j]])
+      #convert the current record to a column vector
+      curImage = numpy.transpose(trainData[order[j]])
 
       #compute output
       activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
@@ -122,14 +115,14 @@ while shouldTrain:
   print("Testing accuracy")
   
   #Get a subset of test images to test accuracy
-  indexes = numpy.random.choice(trainImages.shape[0], size=1000, replace=False)
+  indexes = numpy.random.choice(trainData.shape[0], size=1000, replace=False)
   
   #testing accuracy
   correct = 0
   wrong = 0
   
   for num in indexes:
-    curImage = numpy.transpose(trainImages[num])
+    curImage = numpy.transpose(trainData[num])
     output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
@@ -145,32 +138,3 @@ while shouldTrain:
     print("Target accuracy achieved or max time reached")
   else:
     print("Target accuracy not achieved (" + str(correct/(correct+wrong)) + " < " + str(TARGET_ACCURACY) + ")")
-
-#testing
-correct = 0
-wrong = 0
-
-for i in range(testImages.shape[0]):
-  #convert the current image to a column vector
-  curImage = numpy.transpose(testImages[i])
-  
-  #compute output
-  output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
-  for k in range(1, len(LAYER_ARRAY)):
-    output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
-  
-  guess = ReLU(output).argmax()
-  
-  #display number and guess
-  print(mndata.display(testImagesInput[i]))
-  print("Guess: ")
-  print(guess)
-    
-  #add to stats
-  if (guess == testLabels[i]):
-    correct += 1
-  else:
-    wrong += 1
-    
-print("Accuracy: ")
-print(correct / (correct + wrong))
