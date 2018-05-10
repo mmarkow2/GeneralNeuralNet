@@ -74,10 +74,10 @@ while shouldTrain:
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
       #convert the current record to a column vector
-      curImage = numpy.transpose(trainData[order[j]])
+      curRecord = numpy.transpose(trainData[order[j]])
 
       #compute output
-      activations[0] = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+      activations[0] = numpy.add(numpy.matmul(layerweights[0], curRecord), layerbiases[0])
       for k in range(1, len(LAYER_ARRAY)):
         activations[k] = numpy.add(numpy.matmul(layerweights[k], ReLU(activations[k - 1])), layerbiases[k])
 
@@ -97,7 +97,7 @@ while shouldTrain:
         ReLUDerivatives = ReLUDerivative(activations[k])
         biasGradient[k] = numpy.multiply(activationDerivatives[k], ReLUDerivatives)
         if (k == 0):
-          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(curImage))
+          weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(curRecord))
         else:
           weightGradient[k] = numpy.matmul(biasGradient[k], numpy.transpose(ReLU(activations[k-1])))
 
@@ -122,8 +122,8 @@ while shouldTrain:
   wrong = 0
   
   for num in indexes:
-    curImage = numpy.transpose(trainData[num])
-    output = numpy.add(numpy.matmul(layerweights[0], curImage), layerbiases[0])
+    curRecord = numpy.transpose(trainData[num])
+    output = numpy.add(numpy.matmul(layerweights[0], curRecord), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
     guess = ReLU(output).argmax()
@@ -138,3 +138,6 @@ while shouldTrain:
     print("Target accuracy achieved or max time reached")
   else:
     print("Target accuracy not achieved (" + str(correct/(correct+wrong)) + " < " + str(TARGET_ACCURACY) + ")")
+
+#save the final model to a .npz file
+numpy.savez("output", layerweights, layerbiases)
