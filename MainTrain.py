@@ -20,6 +20,7 @@ def ReLUDerivative(vector):
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
 LAYER_ARRAY = [200, 100, 2]
+VALIDATION_SIZE = 1000
 
 #load data
 trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
@@ -116,25 +117,32 @@ while shouldTrain:
   print("Testing accuracy")
   
   #Get a subset of test images to test accuracy
-  indexes = numpy.random.choice(trainData.shape[0], size=1000, replace=False)
+  indexes = numpy.random.choice(trainData.shape[0], size=VALIDATION_SIZE, replace=False)
   
   #testing accuracy
-  correct = 0
-  wrong = 0
+  evalMatrix = numpy.zeros((VALIDATION_SIZE, 2))
+  evalNum = 0
   
   for num in indexes:
     curRecord = numpy.transpose(trainData[num])
     output = numpy.add(numpy.matmul(layerweights[0], curRecord), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
-    if (ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0]) > 0.95):
-      if (trainLabels[num] == 1):
-        correct += 1
-      else:
-        wrong += 1
       
+    #add to evaluation matrix
+    evalMatrix[evalNum][0] = ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])
+    evalMatrix[evalNum][1] = trainLabels[num]
+    evalNum += 1
+  
+  #check distribution along percentiles
+  evalMatrix[(-evalMatrix[:,0]).argsort()]
+  print("Total responders in validation set: " + str(numpy.sum(evalMatrix, axis=0)[1]) + "\n")
+  for i in range(20):
+    print("Responders in " + str(100 - (i + 1) * 5) + "th percentile: " + str(numpy.sum(evalMatrix[int(i * (VALIDATION_SIZE/20)):int((i + 1) * (VALIDATION_SIZE/20)), 1])) + "\n")
+  
+  
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
-  if (input("Accuracy in 95th percentile: " + str(correct/(correct + wrong + 1)) + ". Stop here? (y/n): ") == "y"):
+  if (input("Stop here? (y/n): ") == "y"):
     shouldTrain = False
 
 #save the final model to a .npz file
