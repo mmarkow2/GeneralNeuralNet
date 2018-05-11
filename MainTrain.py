@@ -20,8 +20,6 @@ def ReLUDerivative(vector):
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
 LAYER_ARRAY = [200, 100, 2]
-TARGET_ACCURACY = 0.95
-MAXIMUM_EPOCHS = 5
 
 #load data
 trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
@@ -136,11 +134,8 @@ while shouldTrain:
       wrong += 1
       
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
-  if (correct/(correct + wrong) > TARGET_ACCURACY or numEpochs >= MAXIMUM_EPOCHS):
+  if (input("Accuracy achieved: " + str(correct/(correct + wrong)) + ". Stop here? (y/n): ") == "y"):
     shouldTrain = False
-    print("Target accuracy achieved or max time reached")
-  else:
-    print("Target accuracy not achieved (" + str(correct/(correct+wrong)) + " < " + str(TARGET_ACCURACY) + ")")
 
 #save the final model to a .npz file
 numpy.savez("model", layerweights=layerweights, layerbiases=layerbiases)
