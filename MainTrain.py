@@ -1,5 +1,6 @@
 import numpy
 import pandas
+import pickle
 
 def ReLU(vector):
   result = numpy.copy(vector)
@@ -26,7 +27,9 @@ MAXIMUM_EPOCHS = 5
 trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
 
 #dummy out categorical variables into binary and convert to matrix
-trainDataConverted = numpy.asmatrix(pandas.get_dummies(trainDataRaw).as_matrix()).astype(int)
+trainDataDummied = pandas.get_dummies(trainDataRaw)
+columnNames = trainDataDummied.columns
+trainDataConverted = numpy.asmatrix(trainDataDummied.as_matrix()).astype(int)
 
 #convert train data to matrix
 trainLabels = trainDataConverted[:, 1]
@@ -140,4 +143,8 @@ while shouldTrain:
     print("Target accuracy not achieved (" + str(correct/(correct+wrong)) + " < " + str(TARGET_ACCURACY) + ")")
 
 #save the final model to a .npz file
-numpy.savez("output", layerweights, layerbiases)
+numpy.savez("model", layerweights=layerweights, layerbiases=layerbiases)
+
+#save the column names used
+columnFile = open("model.col", "wb")
+pickle.dump(columnNames, columnFile)
