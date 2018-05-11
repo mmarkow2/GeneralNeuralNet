@@ -127,14 +127,14 @@ while shouldTrain:
     output = numpy.add(numpy.matmul(layerweights[0], curRecord), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
       output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
-    guess = ReLU(output).argmax()
-    if (guess == trainLabels[num]):
-      correct += 1
-    else:
-      wrong += 1
+    if (ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0]) > 0.95):
+      if (trainLabels[num] == 1):
+        correct += 1
+      else:
+        wrong += 1
       
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
-  if (input("Accuracy achieved: " + str(correct/(correct + wrong)) + ". Stop here? (y/n): ") == "y"):
+  if (input("Accuracy in 95th percentile: " + str(correct/(correct + wrong + 1)) + ". Stop here? (y/n): ") == "y"):
     shouldTrain = False
 
 #save the final model to a .npz file
