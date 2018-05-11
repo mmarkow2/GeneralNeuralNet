@@ -62,8 +62,13 @@ shouldTrain = True
 #number of epochs
 numEpochs = 0
 
+#get validation set
+order = numpy.random.choice(trainData.shape[0], size=trainData.shape[0], replace=False)
+validationSet = order[0:VALIDATION_SIZE]
+order = order[VALIDATION_SIZE:]
+
 while shouldTrain:
-  order = numpy.random.choice(trainData.shape[0], size=trainData.shape[0], replace=False)
+  numpy.random.shuffle(order)
   for i in range(0, len(order) - BATCH_SIZE, BATCH_SIZE):
     #gradient sums (used for batches)
     biasGradientSUM = [0] * len(LAYER_ARRAY)
@@ -116,14 +121,11 @@ while shouldTrain:
   print("Epoch " + str(numEpochs) + " Complete")
   print("Testing accuracy")
   
-  #Get a subset of test images to test accuracy
-  indexes = numpy.random.choice(trainData.shape[0], size=VALIDATION_SIZE, replace=False)
-  
   #testing accuracy
   evalMatrix = numpy.zeros((VALIDATION_SIZE, 2))
   evalNum = 0
   
-  for num in indexes:
+  for num in validationSet:
     curRecord = numpy.transpose(trainData[num])
     output = numpy.add(numpy.matmul(layerweights[0], curRecord), layerbiases[0])
     for k in range(1, len(LAYER_ARRAY)):
