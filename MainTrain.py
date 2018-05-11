@@ -135,7 +135,7 @@ while shouldTrain:
     evalNum += 1
   
   #check distribution along percentiles
-  evalMatrix[(-evalMatrix[:,0]).argsort()]
+  evalMatrix = evalMatrix[(-evalMatrix[:,0]).argsort()]
   print("Total responders in validation set: " + str(numpy.sum(evalMatrix, axis=0)[1]) + "\n")
   for i in range(20):
     print("Responders in " + str(100 - (i + 1) * 5) + "th percentile: " + str(numpy.sum(evalMatrix[int(i * (VALIDATION_SIZE/20)):int((i + 1) * (VALIDATION_SIZE/20)), 1])) + "\n")
