@@ -41,10 +41,10 @@ testDataDummied = testDataDummied[trainColumnNames]
 testDataConverted = numpy.asmatrix(testDataDummied.as_matrix()).astype(int)
 
 #convert test data to matrix
-testData = testDataConverted[:,1:]
+testData = testDataConverted[:,2:]
 
 #scoring
-results = open("results.txt")
+results = open("results.txt", "w")
 
 for i in range(testData.shape[0]):
   #convert the current record to a column vector
@@ -56,4 +56,4 @@ for i in range(testData.shape[0]):
     output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
   
   #save the result of the score
-  results.write(testDataConverted[i, 0] ": " + ReLU(output)[1]/(ReLU(output)[0] + ReLU(output)[1]))
+  results.write(str(testDataConverted[i, 0]) + ": " + str(ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])) + "\n")
