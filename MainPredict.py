@@ -21,7 +21,7 @@ columnFile = open("model.col", "rb")
 trainColumnNames = pickle.load(columnFile)
 
 #dummy out categorical variables into binary and convert to matrix
-testDataDummied = pandas.get_dummies(testDataRaw.drop("Responder___", axis=1))
+testDataDummied = pandas.get_dummies(testDataRaw.drop("Responder___", axis=1), drop_first=True)
 testColumnNames = testDataDummied.columns
 
 #code borrowed from https://stackoverflow.com/questions/41335718/keep-same-dummy-variable-in-training-and-testing-data
@@ -56,4 +56,4 @@ for i in range(testData.shape[0]):
     output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
   
   #save the result of the score
-  results.write(str(testDataConverted[i, 0]) + ": " + str(ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])) + "\n")
+  results.write(str(testDataConverted[i, 0]) + ": " + str(ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])) + "\r\n")

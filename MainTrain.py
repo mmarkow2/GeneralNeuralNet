@@ -20,13 +20,13 @@ def ReLUDerivative(vector):
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
 LAYER_ARRAY = [200, 100, 2]
-VALIDATION_SIZE = 1000
+VALIDATION_SIZE = 50000
 
 #load data
 trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
 
 #dummy out categorical variables into binary and convert to matrix
-trainDataDummied = pandas.get_dummies(trainDataRaw)
+trainDataDummied = pandas.get_dummies(trainDataRaw, drop_first=True)
 columnNames = trainDataDummied.columns
 trainDataConverted = numpy.asmatrix(trainDataDummied.as_matrix()).astype(int)
 
@@ -76,7 +76,7 @@ while shouldTrain:
 
     for j in range(i, i + BATCH_SIZE):
       #progress bar
-      percentComplete = int(j / trainData.shape[0] * 100)
+      percentComplete = int(j / len(order) * 100)
 
       print("-" * percentComplete + " " + str(percentComplete) + "%", end="\r")
 
