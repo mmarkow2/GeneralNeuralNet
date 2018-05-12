@@ -49,7 +49,7 @@ minVals = numpy.min(testData, axis=0)
 
 for i in range(testData.shape[1]):
   if minVals[0,i] != 0 or maxVals[0,i] != 1:
-    testData[:,i] = numpy.divide(trainData[:, i] - minVals[0,i], maxVals[0,i] - minVals[0,i])
+    testData[:,i] = numpy.divide(testData[:, i] - minVals[0,i], maxVals[0,i] - minVals[0,i])
 
 #scoring
 results = open("results.txt", "w")
@@ -64,4 +64,7 @@ for i in range(testData.shape[0]):
     output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
   
   #save the result of the score
-  results.write(str(testDataConverted[i, 0]) + ": " + str(ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])) + "\r\n")
+  if ReLU(output)[0][0] + ReLU(output)[1][0] != 0:
+    results.write(str(testDataConverted[i, 0]) + ": " + str(ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])) + "\r\n")
+  else:
+    results.write(str(testDataConverted[i, 0]) + ": " + str(0) + "\r\n")

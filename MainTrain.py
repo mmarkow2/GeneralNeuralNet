@@ -1,6 +1,7 @@
 import numpy
 import pandas
 import pickle
+import math
 
 def ReLU(vector):
   result = numpy.copy(vector)
@@ -138,6 +139,7 @@ while shouldTrain:
   #testing accuracy
   evalMatrix = numpy.zeros((VALIDATION_SIZE, 2))
   evalNum = 0
+  SSE = 0
   
   for num in validationSet:
     curRecord = numpy.transpose(trainData[num])
@@ -146,22 +148,28 @@ while shouldTrain:
       output = numpy.add(numpy.matmul(layerweights[k], ReLU(output)), layerbiases[k])
       
     #add to evaluation matrix
-    evalMatrix[evalNum][0] = ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])
+    if ReLU(output)[0][0] + ReLU(output)[1][0] != 0:
+      evalMatrix[evalNum][0] = ReLU(output)[1][0]/(ReLU(output)[0][0] + ReLU(output)[1][0])
+    else:
+      evalMatrix[evalNum][0] = 0
     evalMatrix[evalNum][1] = trainLabels[num]
     evalNum += 1
+    
+    #add to SSE
+    SSE += (ReLU(output)[trainLabels[num,0]][0] - 1 ) ** 2
+    SSE += (ReLU(output)[0 if trainLabels[num,0] == 1 else 1][0] - 1 ) ** 2
   
   #check distribution along percentiles
   evalMatrix = evalMatrix[(-evalMatrix[:,0]).argsort()]
   print("Total responders in validation set: " + str(numpy.sum(evalMatrix, axis=0)[1]) + "\n")
   for i in range(20):
-    print("Responders in " + str(100 - (i + 1) * 5) + "th percentile: " + str(numpy.sum(evalMatrix[int(i * (VALIDATION_SIZE/20)):int((i + 1) * (VALIDATION_SIZE/20)), 1])) + " out of " + str(VALIDATION_SIZE/20) + "\n")
-  
+    print("Responders in " + str(100 - (i + 1) * 5) + "th percentile: " + str(numpy.sum(evalMatrix[int(i * (VALIDATION_SIZE/20)):int((i + 1) * (VALIDATION_SIZE/20)), 1])) + " out of " + str(int(VALIDATION_SIZE/20)) + "\n")
+  print("BIC on cross-validation set: " + str((VALIDATION_SIZE * math.log(SSE/VALIDATION_SIZE) + (numpy.size(layerweights) + numpy.size(layerbiases))*math.log(VALIDATION_SIZE))) + "\n")
   
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
   if (input("Stop here? (y/n): ") == "y"):
     shouldTrain = False
 
-#save the final model to a .npz file
 #save the final model to a .npz file
 if (input("Use previous? (y/n): ") == "y"):
   numpy.savez("model", layerweights=prevlayerweights, layerbiases=prevbiases)
