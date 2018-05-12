@@ -17,22 +17,31 @@ def ReLUDerivative(vector):
       result[i] = 0
   return result
 
+#load data
+trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
+
+#set parameters
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
 LAYER_ARRAY = [200, 100, 2]
-VALIDATION_SIZE = 50000
-
-#load data
-trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
+VALIDATION_SIZE = int(len(trainDataRaw) / 3)
 
 #dummy out categorical variables into binary and convert to matrix
 trainDataDummied = pandas.get_dummies(trainDataRaw, drop_first=True)
 columnNames = trainDataDummied.columns
-trainDataConverted = numpy.asmatrix(trainDataDummied.as_matrix()).astype(int)
+trainDataConverted = numpy.asmatrix(trainDataDummied.as_matrix())
 
 #convert train data to matrix
-trainLabels = trainDataConverted[:, 1]
-trainData = trainDataConverted[:,2:]
+trainLabels = trainDataConverted[:, 1].astype(int)
+trainData = trainDataConverted[:,2:].astype(float)
+
+#normalize numerical data
+maxVals = numpy.max(trainData, axis=0)
+minVals = numpy.min(trainData, axis=0)
+
+for i in range(trainData.shape[1]):
+  if minVals[0,i] != 0 or maxVals[0,i] != 1:
+    trainData[:,i] = numpy.divide(trainData[:, i] - minVals[0,i], maxVals[0,i] - minVals[0,i])
 
 #Advanced classifier
 

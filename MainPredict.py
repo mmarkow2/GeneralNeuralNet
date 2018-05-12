@@ -38,10 +38,18 @@ for c in missing_cols:
 testDataDummied = testDataDummied[trainColumnNames]
 #----------------------------------end borrowed code----------------------------------------
 
-testDataConverted = numpy.asmatrix(testDataDummied.as_matrix()).astype(int)
+testDataConverted = numpy.asmatrix(testDataDummied.as_matrix())
 
 #convert test data to matrix
-testData = testDataConverted[:,2:]
+testData = testDataConverted[:,2:].astype(float)
+
+#normalize numerical data
+maxVals = numpy.max(testData, axis=0)
+minVals = numpy.min(testData, axis=0)
+
+for i in range(testData.shape[1]):
+  if minVals[0,i] != 0 or maxVals[0,i] != 1:
+    testData[:,i] = numpy.divide(trainData[:, i] - minVals[0,i], maxVals[0,i] - minVals[0,i])
 
 #scoring
 results = open("results.txt", "w")
