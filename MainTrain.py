@@ -23,7 +23,7 @@ trainDataRaw = pandas.read_csv("training.txt", delimiter='|')
 #set parameters
 LEARNING_RATE = 0.02
 BATCH_SIZE = 32
-LAYER_ARRAY = [200, 100, 2]
+LAYER_ARRAY = [35, 15, 2]
 VALIDATION_SIZE = int(len(trainDataRaw) / 3)
 
 #dummy out categorical variables into binary and convert to matrix
@@ -77,6 +77,11 @@ validationSet = order[0:VALIDATION_SIZE]
 order = order[VALIDATION_SIZE:]
 
 while shouldTrain:
+  
+  #store the previous layer weights
+  prevlayerweights = numpy.copy(layerweights)
+  prevbiases = numpy.copy(layerbiases)
+    
   numpy.random.shuffle(order)
   for i in range(0, len(order) - BATCH_SIZE, BATCH_SIZE):
     #gradient sums (used for batches)
@@ -149,7 +154,7 @@ while shouldTrain:
   evalMatrix = evalMatrix[(-evalMatrix[:,0]).argsort()]
   print("Total responders in validation set: " + str(numpy.sum(evalMatrix, axis=0)[1]) + "\n")
   for i in range(20):
-    print("Responders in " + str(100 - (i + 1) * 5) + "th percentile: " + str(numpy.sum(evalMatrix[int(i * (VALIDATION_SIZE/20)):int((i + 1) * (VALIDATION_SIZE/20)), 1])) + "\n")
+    print("Responders in " + str(100 - (i + 1) * 5) + "th percentile: " + str(numpy.sum(evalMatrix[int(i * (VALIDATION_SIZE/20)):int((i + 1) * (VALIDATION_SIZE/20)), 1])) + " out of " + str(VALIDATION_SIZE/20) + "\n")
   
   
   #if the accuracy was achieved or if we have taken over the maximum number of times, terminate
@@ -157,7 +162,11 @@ while shouldTrain:
     shouldTrain = False
 
 #save the final model to a .npz file
-numpy.savez("model", layerweights=layerweights, layerbiases=layerbiases)
+#save the final model to a .npz file
+if (input("Use previous? (y/n): ") == "y"):
+  numpy.savez("model", layerweights=prevlayerweights, layerbiases=prevbiases)
+else:
+  numpy.savez("model", layerweights=layerweights, layerbiases=layerbiases)
 
 #save the column names used
 columnFile = open("model.col", "wb")
