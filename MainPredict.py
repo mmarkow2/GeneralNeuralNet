@@ -75,7 +75,7 @@ for i in range(testData.shape[0]):
   
   #save the result of the score
   evalMatrix[evalNum][1] = testLabels[i]
-  results.write(str(testDataConverted[i, 0]) + ": " + str(evalMatrix[evalNum][1]) + "\r\n")
+  results.write(str(testDataConverted[i, 0]) + ": " + str(evalMatrix[evalNum][0]) + "\r\n")
   evalNum += 1
   
 evalMatrix = evalMatrix[(-evalMatrix[:,0]).argsort()]
